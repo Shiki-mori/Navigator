@@ -2,6 +2,7 @@ package dev.phrolova.navigator.ui.stats
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
@@ -31,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.phrolova.navigator.domain.model.ChartMetric
@@ -114,21 +117,30 @@ fun StatsScreen(viewModel: StatsViewModel) {
                         )
                     } else {
                         Text(
-                            if (state.period == StatsPeriod.MONTH) "按日" else "按月合计",
+                            if (state.period == StatsPeriod.MONTH) "按日" else "按月合计，点上数字为该月次数",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
+                        val chartLines = chart.series.map { series ->
+                            ChartLine(
+                                name = series.metric.label,
+                                color = series.metric.chartColor(dark),
+                                values = series.values,
+                            )
+                        }
                         MultiLineChart(
                             xLabels = chart.xLabels,
-                            lines = chart.series.map { series ->
-                                ChartLine(
-                                    name = series.metric.label,
-                                    color = series.metric.chartColor(dark),
-                                    values = series.values,
-                                )
-                            },
+                            lines = chartLines,
+                            showValues = state.period == StatsPeriod.YEAR,
                             modifier = Modifier.padding(top = 8.dp),
                         )
+                        if (state.period == StatsPeriod.YEAR) {
+                            YearMonthTable(
+                                xLabels = chart.xLabels,
+                                lines = chartLines,
+                                modifier = Modifier.padding(top = 12.dp),
+                            )
+                        }
                     }
                 }
             }
@@ -163,6 +175,56 @@ fun StatsScreen(viewModel: StatsViewModel) {
                 "破戒平均间隔",
                 stats.averageRelapseIntervalDays?.let { String.format(Locale.CHINA, "%.1f 天", it) } ?: "—",
             )
+        }
+    }
+}
+
+@Composable
+private fun YearMonthTable(
+    xLabels: List<String>,
+    lines: List<ChartLine>,
+    modifier: Modifier = Modifier,
+) {
+    val monthWidth = 48.dp
+    val cellWidth = 72.dp
+    Column(modifier = modifier.horizontalScroll(rememberScrollState())) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                "月份",
+                modifier = Modifier.width(monthWidth),
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            lines.forEach { line ->
+                Text(
+                    line.name,
+                    modifier = Modifier.width(cellWidth),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = line.color,
+                    maxLines = 1,
+                )
+            }
+        }
+        xLabels.forEachIndexed { index, label ->
+            Row(
+                modifier = Modifier.padding(top = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    label,
+                    modifier = Modifier.width(monthWidth),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                lines.forEach { line ->
+                    val value = line.values.getOrElse(index) { 0f }
+                    Text(
+                        formatCount(value),
+                        modifier = Modifier.width(cellWidth),
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Medium,
+                    )
+                }
+            }
         }
     }
 }

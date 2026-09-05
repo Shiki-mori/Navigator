@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -30,6 +31,7 @@ fun MultiLineChart(
     xLabels: List<String>,
     lines: List<ChartLine>,
     modifier: Modifier = Modifier,
+    showValues: Boolean = false,
 ) {
     val textMeasurer = rememberTextMeasurer()
     val axisColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.45f)
@@ -45,12 +47,12 @@ fun MultiLineChart(
     Canvas(
         modifier = modifier
             .fillMaxWidth()
-            .height(220.dp),
+            .height(if (showValues) 260.dp else 220.dp),
     ) {
         if (pointCount == 0) return@Canvas
         val startPad = 36.dp.toPx()
         val endPad = 8.dp.toPx()
-        val topPad = 12.dp.toPx()
+        val topPad = if (showValues) (16.dp.toPx() + lines.size * 14.dp.toPx()) else 12.dp.toPx()
         val bottomPad = 24.dp.toPx()
         val plotWidth = size.width - startPad - endPad
         val plotHeight = size.height - topPad - bottomPad
@@ -122,7 +124,37 @@ fun MultiLineChart(
                 )
             }
         }
+
+        if (showValues) {
+            lines.forEachIndexed { seriesIndex, line ->
+                val valueStyle = TextStyle(
+                    color = line.color,
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Bold,
+                )
+                line.values.forEachIndexed { index, value ->
+                    val text = formatCount(value)
+                    val layout = textMeasurer.measure(text, valueStyle)
+                    val point = Offset(xOf(index), yOf(value))
+                    val lift = 6.dp.toPx() + seriesIndex * (layout.size.height + 2.dp.toPx())
+                    drawText(
+                        textLayoutResult = layout,
+                        topLeft = Offset(
+                            x = (point.x - layout.size.width / 2f).coerceIn(
+                                startPad,
+                                size.width - layout.size.width,
+                            ),
+                            y = (point.y - layout.size.height - lift).coerceAtLeast(0f),
+                        ),
+                    )
+                }
+            }
+        }
     }
+}
+
+internal fun formatCount(value: Float): String {
+    return if (value % 1f == 0f) value.toInt().toString() else value.toString()
 }
 
 private fun visibleXIndices(count: Int): List<Int> {
