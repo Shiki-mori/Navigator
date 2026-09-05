@@ -77,7 +77,7 @@ class ChartCalculator {
         fun valueOf(record: DailyRecord?, metric: ChartMetric): Float {
             if (record == null) return 0f
             return when (metric) {
-                ChartMetric.RELAPSE -> if (record.isRelapse) 1f else 0f
+                ChartMetric.RELAPSE -> record.relapseCount.toFloat()
                 ChartMetric.MASTURBATION -> record.masturbationCount.toFloat()
                 ChartMetric.PORN -> if (record.viewedPorn) 1f else 0f
                 ChartMetric.INTERCOURSE -> record.intercourseCount.toFloat()

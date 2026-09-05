@@ -1,7 +1,7 @@
 package dev.phrolova.navigator.domain.model
 
 enum class ChartMetric(val label: String) {
-    RELAPSE("破戒"),
+    RELAPSE("破戒次数"),
     MASTURBATION("自慰"),
     PORN("看黄"),
     INTERCOURSE("房事"),

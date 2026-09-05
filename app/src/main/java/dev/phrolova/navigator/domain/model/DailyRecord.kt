@@ -15,4 +15,11 @@ data class DailyRecord(
 
     val isClean: Boolean
         get() = !isRelapse
+
+    val relapseCount: Int
+        get() = when {
+            masturbationCount >= 1 -> masturbationCount
+            viewedPorn -> 1
+            else -> 0
+        }
 }

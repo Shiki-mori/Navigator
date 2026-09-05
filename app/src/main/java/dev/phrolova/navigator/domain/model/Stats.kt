@@ -8,6 +8,7 @@ data class Stats(
     val recordedDays: Int,
     val cleanDays: Int,
     val relapseDays: Int,
+    val relapseCount: Int,
     val masturbationTotal: Int,
     val intercourseTotal: Int,
     val pornDays: Int,

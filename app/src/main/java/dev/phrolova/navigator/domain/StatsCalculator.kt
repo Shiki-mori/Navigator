@@ -32,6 +32,7 @@ class StatsCalculator {
             recordedDays = inPeriod.size,
             cleanDays = inPeriod.count { it.isClean },
             relapseDays = relapseDates.size,
+            relapseCount = inPeriod.sumOf { it.relapseCount },
             masturbationTotal = inPeriod.sumOf { it.masturbationCount },
             intercourseTotal = inPeriod.sumOf { it.intercourseCount },
             pornDays = inPeriod.count { it.viewedPorn },

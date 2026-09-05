@@ -30,6 +30,7 @@ class StatsCalculatorTest {
         assertEquals(4, stats.recordedDays)
         assertEquals(1, stats.cleanDays)
         assertEquals(3, stats.relapseDays)
+        assertEquals(4, stats.relapseCount)
         assertEquals(3, stats.masturbationTotal)
         assertEquals(2, stats.pornDays)
         assertEquals(1, stats.intercourseTotal)
@@ -51,6 +52,7 @@ class StatsCalculatorTest {
         assertEquals(LocalDate.of(2024, 8, 1), stats.from)
         assertEquals(2, stats.recordedDays)
         assertEquals(1, stats.relapseDays)
+        assertEquals(1, stats.relapseCount)
         assertNull(stats.averageRelapseIntervalDays)
     }
 
@@ -72,5 +74,6 @@ class StatsCalculatorTest {
         assertEquals(LocalDate.of(2024, 8, 31), stats.to)
         assertEquals(1, stats.recordedDays)
         assertEquals(1, stats.relapseDays)
+        assertEquals(1, stats.relapseCount)
     }
 }

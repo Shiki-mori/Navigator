@@ -13,7 +13,7 @@ data (Room、JSON 解析、SAF 文件读写)
 ## 包
 
 - `dev.phrolova.navigator.domain.model` — `DailyRecord`、`Streak`、`Stats`、`BadHabit`
-- `dev.phrolova.navigator.domain` — `StreakCalculator`、`StatsCalculator`、`BackupParser`、`RecordRepository`
+- `dev.phrolova.navigator.domain` — `StreakCalculator`、`StatsCalculator`、`ChartCalculator`、`BackupParser`、`RecordRepository`
 - `dev.phrolova.navigator.domain.usecase` — 打卡、首页、月历、统计、导入导出
 - `dev.phrolova.navigator.data.local` — Room Entity / DAO / Database
 - `dev.phrolova.navigator.data` — `RoomRecordRepository`、文件网关

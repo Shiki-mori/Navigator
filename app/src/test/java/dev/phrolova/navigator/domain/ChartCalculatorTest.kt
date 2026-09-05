@@ -16,6 +16,7 @@ class ChartCalculatorTest {
         val month = YearMonth.of(2024, 8)
         val records = listOf(
             DailyRecord(date = LocalDate.of(2024, 8, 1), masturbationCount = 2),
+            DailyRecord(date = LocalDate.of(2024, 8, 2), masturbationCount = 3, viewedPorn = true),
             DailyRecord(date = LocalDate.of(2024, 8, 3), viewedPorn = true),
         )
         val chart = calculator.month(
@@ -26,15 +27,15 @@ class ChartCalculatorTest {
         )
         assertEquals(listOf("1", "2", "3", "4", "5"), chart.xLabels)
         assertEquals(
-            listOf(1f, 0f, 1f, 0f, 0f),
+            listOf(2f, 3f, 1f, 0f, 0f),
             chart.series.first { it.metric == ChartMetric.RELAPSE }.values,
         )
         assertEquals(
-            listOf(2f, 0f, 0f, 0f, 0f),
+            listOf(2f, 3f, 0f, 0f, 0f),
             chart.series.first { it.metric == ChartMetric.MASTURBATION }.values,
         )
         assertEquals(
-            listOf(0f, 0f, 1f, 0f, 0f),
+            listOf(0f, 1f, 1f, 0f, 0f),
             chart.series.first { it.metric == ChartMetric.PORN }.values,
         )
     }
@@ -65,7 +66,7 @@ class ChartCalculatorTest {
         )
         assertEquals(listOf("1月", "2月", "3月"), chart.xLabels)
         assertEquals(
-            listOf(2f, 0f, 1f),
+            listOf(3f, 0f, 1f),
             chart.series.first { it.metric == ChartMetric.RELAPSE }.values,
         )
         assertEquals(

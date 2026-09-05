@@ -145,7 +145,14 @@ fun StatsScreen(viewModel: StatsViewModel) {
             )
             StatCard("记录天数", stats.recordedDays.toString())
             StatCard("干净天数", stats.cleanDays.toString())
-            StatCard("破戒天数", stats.relapseDays.toString())
+            StatCard(
+                if (state.period == StatsPeriod.ALL) "破戒天数" else "破戒次数",
+                if (state.period == StatsPeriod.ALL) {
+                    stats.relapseDays.toString()
+                } else {
+                    stats.relapseCount.toString()
+                },
+            )
             StatCard("自慰次数", stats.masturbationTotal.toString())
             StatCard("看黄天数", stats.pornDays.toString())
             StatCard("房事次数", stats.intercourseTotal.toString())
