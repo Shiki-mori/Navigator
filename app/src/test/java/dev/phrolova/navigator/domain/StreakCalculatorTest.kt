@@ -21,6 +21,8 @@ class StreakCalculatorTest {
         val streak = calculator.calculate(records, today, start)
         assertEquals(4, streak.current)
         assertEquals(4, streak.longest)
+        assertEquals(LocalDate.of(2024, 8, 16), streak.longestStart)
+        assertEquals(LocalDate.of(2024, 8, 19), streak.longestEnd)
     }
 
     @Test
@@ -38,6 +40,8 @@ class StreakCalculatorTest {
         val streak = calculator.calculate(records, today, start)
         assertEquals(0, streak.current)
         assertEquals(2, streak.longest)
+        assertEquals(LocalDate.of(2024, 8, 18), streak.longestStart)
+        assertEquals(LocalDate.of(2024, 8, 19), streak.longestEnd)
     }
 
     @Test
@@ -76,6 +80,16 @@ class StreakCalculatorTest {
     }
 
     @Test
+    fun laterEqualLongestRunIsReported() {
+        val today = LocalDate.of(2024, 8, 20)
+        val records = listOf(clean(16), clean(17), relapse(18), clean(19), clean(20))
+        val streak = calculator.calculate(records, today, start)
+        assertEquals(2, streak.longest)
+        assertEquals(LocalDate.of(2024, 8, 19), streak.longestStart)
+        assertEquals(LocalDate.of(2024, 8, 20), streak.longestEnd)
+    }
+
+    @Test
     fun pornAloneIsRelapse() {
         val today = LocalDate.of(2024, 8, 17)
         val records = listOf(
@@ -85,6 +99,8 @@ class StreakCalculatorTest {
         val streak = calculator.calculate(records, today, start)
         assertEquals(0, streak.current)
         assertEquals(1, streak.longest)
+        assertEquals(LocalDate.of(2024, 8, 16), streak.longestStart)
+        assertEquals(LocalDate.of(2024, 8, 16), streak.longestEnd)
     }
 
     private fun date(day: Int) = LocalDate.of(2024, 8, day)

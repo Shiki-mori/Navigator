@@ -14,7 +14,12 @@ class StreakCalculator {
         val earliestBound = earliestBound(records, trackingStartDate)
         val current = currentStreak(byDate, today, earliestBound)
         val longest = longestStreak(byDate, today, earliestBound)
-        return Streak(current = current, longest = maxOf(current, longest))
+        return Streak(
+            current = current,
+            longest = longest.length,
+            longestStart = longest.start,
+            longestEnd = longest.end,
+        )
     }
 
     private fun earliestBound(
@@ -53,21 +58,37 @@ class StreakCalculator {
         byDate: Map<LocalDate, DailyRecord>,
         today: LocalDate,
         earliestBound: LocalDate?,
-    ): Int {
-        val start = earliestBound ?: return 0
+    ): LongestRun {
+        val start = earliestBound ?: return LongestRun.EMPTY
         var run = 0
         var best = 0
+        var bestStart: LocalDate? = null
+        var bestEnd: LocalDate? = null
         var cursor = start
         while (!cursor.isAfter(today)) {
             val record = byDate[cursor]
             if (record != null && record.isClean) {
                 run++
-                best = maxOf(best, run)
+                if (run >= best) {
+                    best = run
+                    bestEnd = cursor
+                    bestStart = cursor.minusDays(run - 1L)
+                }
             } else {
                 run = 0
             }
             cursor = cursor.plusDays(1)
         }
-        return best
+        return LongestRun(length = best, start = bestStart, end = bestEnd)
+    }
+
+    private data class LongestRun(
+        val length: Int,
+        val start: LocalDate?,
+        val end: LocalDate?,
+    ) {
+        companion object {
+            val EMPTY = LongestRun(length = 0, start = null, end = null)
+        }
     }
 }

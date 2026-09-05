@@ -51,7 +51,7 @@ fun HomeScreen(
         Text("天", style = MaterialTheme.typography.titleMedium)
         Spacer(Modifier.height(4.dp))
         Text(
-            text = "最长 ${state.longestStreak} 天",
+            text = longestStreakLabel(state),
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -77,4 +77,14 @@ fun HomeScreen(
             saveEnabled = state.today.year > 0,
         )
     }
+}
+
+private fun longestStreakLabel(state: HomeUiState): String {
+    val start = state.longestStreakStart
+    val end = state.longestStreakEnd
+    val summary = "最长 ${state.longestStreak} 天"
+    if (state.longestStreak <= 0 || start == null || end == null) {
+        return summary
+    }
+    return "$summary ${start}至${end}"
 }
