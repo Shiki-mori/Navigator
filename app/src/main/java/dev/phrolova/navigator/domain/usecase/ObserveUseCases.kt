@@ -42,22 +42,21 @@ class ObserveMonth(
     private val repository: RecordRepository,
 ) {
     operator fun invoke(month: YearMonth): Flow<Map<LocalDate, DayStatus>> {
-        return repository.observeAll().map { records ->
-            val byDate = records.associateBy { it.date }
+        return all().map { statuses ->
             val days = month.lengthOfMonth()
             buildMap {
                 for (day in 1..days) {
                     val date = month.atDay(day)
-                    val record = byDate[date]
-                    put(
-                        date,
-                        when {
-                            record == null -> DayStatus.UNRECORDED
-                            record.isRelapse -> DayStatus.RELAPSE
-                            else -> DayStatus.CLEAN
-                        },
-                    )
+                    put(date, statuses[date] ?: DayStatus.UNRECORDED)
                 }
+            }
+        }
+    }
+
+    fun all(): Flow<Map<LocalDate, DayStatus>> {
+        return repository.observeAll().map { records ->
+            records.associate { record ->
+                record.date to if (record.isRelapse) DayStatus.RELAPSE else DayStatus.CLEAN
             }
         }
     }

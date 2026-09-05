@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
@@ -19,7 +21,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,10 +33,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.phrolova.navigator.domain.model.DayStatus
+import kotlinx.coroutines.launch
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
+
+private val PagerBaseMonth: YearMonth = YearMonth.of(2000, 1)
+private const val PagerPageCount: Int = 80 * 12
 
 @Composable
 fun CalendarScreen(
@@ -40,6 +49,17 @@ fun CalendarScreen(
     onOpenDay: (LocalDate) -> Unit,
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val pagerState = rememberPagerState(
+        initialPage = monthToPage(YearMonth.from(state.today)),
+        pageCount = { PagerPageCount },
+    )
+    val scope = rememberCoroutineScope()
+    val displayedMonth = pageToMonth(pagerState.currentPage)
+
+    LaunchedEffect(pagerState.settledPage) {
+        viewModel.setMonth(pageToMonth(pagerState.settledPage))
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -50,14 +70,30 @@ fun CalendarScreen(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            IconButton(onClick = viewModel::previousMonth) {
+            IconButton(
+                onClick = {
+                    scope.launch {
+                        pagerState.animateScrollToPage((pagerState.currentPage - 1).coerceAtLeast(0))
+                    }
+                },
+                enabled = pagerState.currentPage > 0,
+            ) {
                 Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "上一月")
             }
             Text(
-                text = state.month.format(DateTimeFormatter.ofPattern("yyyy年M月")),
+                text = displayedMonth.format(DateTimeFormatter.ofPattern("yyyy年M月")),
                 style = MaterialTheme.typography.titleLarge,
             )
-            IconButton(onClick = viewModel::nextMonth) {
+            IconButton(
+                onClick = {
+                    scope.launch {
+                        pagerState.animateScrollToPage(
+                            (pagerState.currentPage + 1).coerceAtMost(PagerPageCount - 1),
+                        )
+                    }
+                },
+                enabled = pagerState.currentPage < PagerPageCount - 1,
+            ) {
                 Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = "下一月")
             }
         }
@@ -72,12 +108,18 @@ fun CalendarScreen(
                 )
             }
         }
-        MonthGrid(
-            month = state.month,
-            today = state.today,
-            statuses = state.statuses,
-            onOpenDay = onOpenDay,
-        )
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.Top,
+        ) { page ->
+            MonthGrid(
+                month = pageToMonth(page),
+                today = state.today,
+                statuses = state.statuses,
+                onOpenDay = onOpenDay,
+            )
+        }
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -114,10 +156,9 @@ private fun MonthGrid(
     val first = month.atDay(1)
     val offset = first.dayOfWeek.value - DayOfWeek.MONDAY.value
     val days = month.lengthOfMonth()
-    val cellCount = ((offset + days + 6) / 7) * 7
-    Column {
+    Column(modifier = Modifier.fillMaxWidth()) {
         var dayIndex = 0
-        repeat(cellCount / 7) {
+        repeat(6) {
             Row(modifier = Modifier.fillMaxWidth()) {
                 repeat(7) {
                     val dateIndex = dayIndex - offset + 1
@@ -176,4 +217,12 @@ private fun DayCell(
             },
         )
     }
+}
+
+internal fun monthToPage(month: YearMonth): Int {
+    return ChronoUnit.MONTHS.between(PagerBaseMonth, month).toInt().coerceIn(0, PagerPageCount - 1)
+}
+
+internal fun pageToMonth(page: Int): YearMonth {
+    return PagerBaseMonth.plusMonths(page.toLong())
 }
