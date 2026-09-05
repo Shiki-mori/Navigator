@@ -1,0 +1,20 @@
+*.iml
+.gradle
+/local.properties
+/.idea/
+.DS_Store
+/build
+**/build/
+/captures
+.externalNativeBuild
+.cxx
+*.apk
+*.aab
+*.ap_
+*.dex
+.kotlin/
+
+# Personal health records — never commit
+backup.txt
+data/backup_cleaned.json
+*.bak
