@@ -89,7 +89,7 @@ fun CheckInForm(
         Button(
             onClick = onSave,
             enabled = saveEnabled,
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.align(Alignment.CenterHorizontally),
         ) {
             Text("保存")
         }
