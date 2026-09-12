@@ -10,6 +10,7 @@ import dev.phrolova.navigator.domain.RecordRepository
 import dev.phrolova.navigator.domain.StatsCalculator
 import dev.phrolova.navigator.domain.StreakCalculator
 import dev.phrolova.navigator.domain.SystemClock
+import dev.phrolova.navigator.domain.usecase.AutoCheckIn
 import dev.phrolova.navigator.domain.usecase.ExportBackup
 import dev.phrolova.navigator.domain.usecase.GetRecord
 import dev.phrolova.navigator.domain.usecase.ImportBackup
@@ -27,6 +28,7 @@ class AppContainer(context: Context) {
     val statsCalculator = StatsCalculator()
     val chartCalculator = ChartCalculator()
     val saveCheckIn = SaveCheckIn(repository, clock)
+    val autoCheckIn = AutoCheckIn(repository, saveCheckIn, clock)
     val getRecord = GetRecord(repository)
     val observeHomeState = ObserveHomeState(repository, streakCalculator, clock)
     val observeMonth = ObserveMonth(repository)

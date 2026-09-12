@@ -14,7 +14,7 @@ data (Room、JSON 解析、SAF 文件读写)
 
 - `dev.phrolova.navigator.domain.model` — `DailyRecord`、`Streak`、`Stats`、`BadHabit`
 - `dev.phrolova.navigator.domain` — `StreakCalculator`、`StatsCalculator`、`ChartCalculator`、`BackupParser`、`RecordRepository`
-- `dev.phrolova.navigator.domain.usecase` — 打卡、首页、月历、统计、导入导出
+- `dev.phrolova.navigator.domain.usecase` — 打卡、自动打卡、首页、月历、统计、导入导出
 - `dev.phrolova.navigator.data.local` — Room Entity / DAO / Database
 - `dev.phrolova.navigator.data` — `RoomRecordRepository`、文件网关
 - `dev.phrolova.navigator.ui` — 首页 / 月历 / 统计 / 设置 / 编辑日
@@ -25,4 +25,4 @@ Kotlin 2.0、Jetpack Compose、Material 3、Navigation Compose、Room、KSP、ko
 
 ## 依赖方向
 
-`Clock` 抽象「今天」，便于单测连续日。解析、连续日、统计均为 JVM 纯逻辑，不依赖 Android SDK。
+`Clock` 抽象「今天」，便于单测连续日。解析、连续日、统计、自动打卡均为 JVM 纯逻辑，不依赖 Android SDK。进入前台时由 `NavigatorApp` 调用 `AutoCheckIn`（见 [AUTO_CHECK_IN.md](AUTO_CHECK_IN.md)）。

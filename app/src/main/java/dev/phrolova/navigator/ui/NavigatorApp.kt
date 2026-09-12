@@ -18,11 +18,15 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavType
@@ -77,6 +81,15 @@ fun NavigatorApp() {
     }
     val showMessage: (String) -> Unit = { text ->
         scope.launch { snackbarHostState.showSnackbar(text) }
+    }
+    val lifecycleOwner = LocalLifecycleOwner.current
+    LaunchedEffect(lifecycleOwner) {
+        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            val filled = container.autoCheckIn()
+            if (filled.isNotEmpty()) {
+                snackbarHostState.showSnackbar(autoCheckInMessage(filled))
+            }
+        }
     }
 
     Scaffold(
@@ -152,4 +165,8 @@ fun NavigatorApp() {
             }
         }
     }
+}
+
+internal fun autoCheckInMessage(dates: List<LocalDate>): String {
+    return "已自动打卡：" + dates.joinToString("、")
 }
